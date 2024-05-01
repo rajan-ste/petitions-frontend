@@ -2,6 +2,7 @@ import { Box, TextField } from "@mui/material"
 
 const SearchBar = () => {
     return (
+        
         <Box
           sx={{
             width: 500,
