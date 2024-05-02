@@ -4,28 +4,37 @@ import axios from "axios";
 import PetitionListObject from "./PetitionListObject";
 import SelectMenu from "./common/SelectMenu";
 import RadioMenu from "./common/RadioMenu";
+import PaginationButs from "./common/Pagination";
 import { Alert, AlertTitle, Box, Grid } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 const Petitions = () => {
     const [petitions, setPetitions] = React.useState<Array<PetitionList>>([]);
     const [categories, setCategories] = React.useState<Array<Category>>([]);
     const [errorFlag, setErrorFlag] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState("");
+    const [dataCount, setDataCount] = React.useState(0);
+    const itemsPerPage = 10;
+    const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const page = parseInt(query.get('page') || '1', 10);
+    const startIndex = (page - 1) * itemsPerPage;
 
     React.useEffect(() => {
     const getUsers = () => {
-        axios.get('http://localhost:4941/api/v1/petitions')
+        axios.get(`http://localhost:4941/api/v1/petitions?startIndex=${startIndex}&count=${itemsPerPage}`)
         .then((response) => {
             setErrorFlag(false);
             setErrorMessage("");
             setPetitions(response.data.petitions);
+            setDataCount(response.data.count);
         }, (error) => {
             setErrorFlag(true);
             setErrorMessage(error.toString());
         });
     };
     getUsers();
-    }, [setPetitions]);
+    }, [setPetitions, startIndex]);
 
     React.useEffect(() => {
         const getCategories = () => {
@@ -76,15 +85,15 @@ const Petitions = () => {
                           alignItems: 'center', 
                           height: '20vh'}}>
                 <SearchBar />
-            <div style={{ display: 'flex', marginLeft: '3vh'}}>
-                <SelectMenu categories={categories} />
-            </div>
-            <div style={{ display: 'flex', marginLeft: '3vh' }}>
-                <RadioMenu options={priceOptions} title="Max Cost" />
-            </div>
-            <div style={{ display: 'flex', marginLeft: '3vh' }}>
-                <RadioMenu options={sortOptions} title="Sort By" />
-            </div>
+                <div style={{ display: 'flex', marginLeft: '3vh'}}>
+                    <SelectMenu categories={categories} />
+                </div>
+                <div style={{ display: 'flex', marginLeft: '3vh' }}>
+                    <RadioMenu options={priceOptions} title="Max Cost" />
+                </div>
+                <div style={{ display: 'flex', marginLeft: '3vh' }}>
+                    <RadioMenu options={sortOptions} title="Sort By" />
+                </div>
                 
             </div>
             {errorFlag?
@@ -97,6 +106,9 @@ const Petitions = () => {
                     { petition_rows() }
                 </Grid>
             </Box>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 10}}>
+                <PaginationButs itemsPerPage={itemsPerPage} count={dataCount} page={page}/>
+            </div>
             
         </div>
     )
