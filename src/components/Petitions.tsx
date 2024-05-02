@@ -74,9 +74,9 @@ const Petitions = () => {
             <div style={{ display: 'flex', 
                           justifyContent: 'center', 
                           alignItems: 'center', 
-                          height: '20vh' }}>
+                          height: '20vh'}}>
                 <SearchBar />
-            <div style={{ display: 'flex', marginLeft: '3vh' }}>
+            <div style={{ display: 'flex', marginLeft: '3vh'}}>
                 <SelectMenu categories={categories} />
             </div>
             <div style={{ display: 'flex', marginLeft: '3vh' }}>

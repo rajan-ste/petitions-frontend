@@ -4,7 +4,7 @@ const SearchBar = () => {
     return (
         <Box
           sx={{
-            width: 500,
+            width: 400,
             maxWidth: '100%',
             justifyContent: 'space-evenly',
           }}
