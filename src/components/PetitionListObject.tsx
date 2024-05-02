@@ -1,7 +1,6 @@
 import React from "react";
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 import { Avatar, Grid, Paper, styled } from "@mui/material";
-import axios from "axios";
 
 interface IPetitionListProps {
     petition: PetitionList

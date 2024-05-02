@@ -4,7 +4,7 @@ import './App.css';
 import Home from './components/Home';
 import Petitions from './components/Petitions';
 import NotFound from './components/NotFound';
-import Header from './components/Header';
+import Header from './components/common/Header';
 
 function App() {
   return (
