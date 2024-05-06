@@ -3,11 +3,16 @@ import { Button, Menu, MenuItem } from '@mui/material';
 import Checkbox from '@mui/joy/Checkbox';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
-const SelectMenu = ({ categories }: { categories: Category[] }) => {
+interface iSelectMenuProps {
+    categories: Category[];
+    onCategoryChange: (categoryId: number) => void; 
+}
+
+const SelectMenu = (props: iSelectMenuProps) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     
     const [checkedState, setCheckedState] = React.useState(
-        categories.map(category => category.checked || false)
+        props.categories.map(category => category.checked || false)
     );
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -34,10 +39,10 @@ const SelectMenu = ({ categories }: { categories: Category[] }) => {
                 aria-haspopup="true"
                 onClick={handleClick}
                 style={{
-                    backgroundColor: 'blue', // Blue background color
-                    color: 'white',           // White text color
-                    borderRadius: '4px',      // Rectangular shape with slight rounding
-                    padding: '8px 16px',      // Padding for a better rectangular look
+                    backgroundColor: 'blue', 
+                    color: 'white',           
+                    borderRadius: '4px',      
+                    padding: '8px 16px',    
                 }}
             >
                 Categories
@@ -58,8 +63,8 @@ const SelectMenu = ({ categories }: { categories: Category[] }) => {
                     },
                 }}
             >
-                {categories.map((category, index) => (
-                    <MenuItem key={category.categoryId} onClick={() => handleToggle(index)}>
+                {props.categories.map((category, index) => (
+                    <MenuItem key={category.categoryId} onClick={() => {handleToggle(index); props.onCategoryChange(props.categories[index].categoryId) }} >
                         <Checkbox label={category.name} checked={checkedState[index]} />
                     </MenuItem>
                 ))}

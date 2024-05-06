@@ -13,6 +13,7 @@ const PaginationButs = (props: iPaginationProps) => {
     <Pagination
       page={props.page}
       count={Math.ceil(props.count / props.itemsPerPage)}
+      size="large"
       renderItem={(item) => (
         <PaginationItem
           component={Link}

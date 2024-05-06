@@ -51,7 +51,7 @@ const PetitionListObject = (props: IPetitionListProps) => {
                         )}
                     </div>
                     <div>
-                        <div style={{ textAlign: 'left', marginLeft: '25vh'}}>
+                        <div style={{ textAlign: 'left', marginLeft: '25vh' }}>
                             <h2 style={{ color: 'black'}}>{petition.title}</h2>
                             <h3>Created on: {nztFormatted}</h3>
                             <h3>Category: {petition.category}</h3>

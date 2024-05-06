@@ -4,7 +4,7 @@ import axios from "axios";
 import PetitionListObject from "./PetitionListObject";
 import SelectMenu from "./common/SelectMenu";
 import RadioMenu from "./common/RadioMenu";
-import PaginationButs from "./common/Pagination";
+import PaginationButs from "./common/PaginationButs";
 import { Alert, AlertTitle, Box, Grid } from "@mui/material";
 import { useLocation } from "react-router-dom";
 
@@ -13,8 +13,12 @@ const Petitions = () => {
     const [categories, setCategories] = React.useState<Array<Category>>([]);
     const [errorFlag, setErrorFlag] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState("");
+    const [searchQuery, setSearchQuery] = React.useState("");
+    const [catIds, setCatIds] = React.useState<Array<number>>([]);
+    const [maxCost, setMaxCost] = React.useState("");
+    const [sortOption, setSortOption] = React.useState("")
     const [dataCount, setDataCount] = React.useState(0);
-    const itemsPerPage = 10;
+    const itemsPerPage = 8;
     const location = useLocation();
     const query = new URLSearchParams(location.search);
     const page = parseInt(query.get('page') || '1', 10);
@@ -22,7 +26,14 @@ const Petitions = () => {
 
     React.useEffect(() => {
     const getUsers = () => {
-        axios.get(`http://localhost:4941/api/v1/petitions?startIndex=${startIndex}&count=${itemsPerPage}`)
+        let url = `http://localhost:4941/api/v1/petitions?startIndex=${startIndex}&count=${itemsPerPage}`;
+        if (searchQuery) {url += `&q=${searchQuery}`}
+        if (catIds.length > 0) {
+            url += catIds.map(id => `&categoryIds=${id}`).join('');
+        }
+        if (maxCost !== "" ) {url += `&supportingCost=${maxCost}`}
+        if (sortOption ) {url += `&q=${sortOption}`}
+        axios.get(url)
         .then((response) => {
             setErrorFlag(false);
             setErrorMessage("");
@@ -34,7 +45,7 @@ const Petitions = () => {
         });
     };
     getUsers();
-    }, [setPetitions, startIndex]);
+    }, [setPetitions, startIndex, searchQuery, catIds, maxCost, sortOption]);
 
     React.useEffect(() => {
         const getCategories = () => {
@@ -77,6 +88,17 @@ const Petitions = () => {
     
     const priceOptions = generatePriceOptions();
 
+    const handleCategoryChange = (categoryId: number) => {
+        setCatIds((prevCatIds) => {
+            const index = prevCatIds.indexOf(categoryId);
+            if (index > -1) {
+                return prevCatIds.filter(id => id !== categoryId);
+            } else {
+                return [...prevCatIds, categoryId];
+            }
+        });
+    };
+
     return (
         <div>
             <h1>Petitions</h1>
@@ -84,31 +106,32 @@ const Petitions = () => {
                           justifyContent: 'center', 
                           alignItems: 'center', 
                           height: '20vh'}}>
-                <SearchBar />
+                <SearchBar onSearchChange={setSearchQuery} />
                 <div style={{ display: 'flex', marginLeft: '3vh'}}>
-                    <SelectMenu categories={categories} />
+                    <SelectMenu categories={categories} onCategoryChange={handleCategoryChange}/>
                 </div>
                 <div style={{ display: 'flex', marginLeft: '3vh' }}>
-                    <RadioMenu options={priceOptions} title="Max Cost" />
+                    <RadioMenu options={priceOptions} title="Max Cost" num={true} onInputChangeStr={setMaxCost} />
                 </div>
                 <div style={{ display: 'flex', marginLeft: '3vh' }}>
-                    <RadioMenu options={sortOptions} title="Sort By" />
+                    <RadioMenu options={sortOptions} title="Sort By" num={false} onInputChangeStr={setSortOption} />
                 </div>
                 
             </div>
-            {errorFlag?
+            {errorFlag ?
             <Alert severity = "error">
             <AlertTitle> Error </AlertTitle>
             { errorMessage }
-            </Alert>: ""}
+            </Alert> : ""}
             <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2}>
                     { petition_rows() }
                 </Grid>
             </Box>
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 10}}>
+            {petitions.length > 0 ?
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 10}}>
                 <PaginationButs itemsPerPage={itemsPerPage} count={dataCount} page={page}/>
-            </div>
+            </div> : <h2>{"No Petitions Found"}</h2>}
             
         </div>
     )

@@ -3,8 +3,11 @@ import { Button, Menu, Radio, RadioGroup, FormControlLabel, FormControl } from '
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 interface IRadioMenuProps {
-    options: string[],
-    title: string
+    options: string[];
+    title: string;
+    num: boolean;
+    onInputChangeNum?: (value: number) => void;
+    onInputChangeStr: (value: string) => void;
 }
 
 const RadioMenu = (props: IRadioMenuProps) => {
@@ -21,6 +24,7 @@ const RadioMenu = (props: IRadioMenuProps) => {
 
     const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedPrice(event.target.value);
+        props.onInputChangeStr(selectedPrice.replace("$", ""))
         handleClose();
     };
 

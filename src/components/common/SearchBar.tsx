@@ -1,6 +1,10 @@
 import { Box, TextField } from "@mui/material"
 
-const SearchBar = () => {
+interface iSearchBarProps {
+  onSearchChange: (searchQuery: string) => void;
+}
+
+const SearchBar = ({ onSearchChange }: iSearchBarProps) => {
     return (
         <Box
           sx={{
@@ -9,7 +13,8 @@ const SearchBar = () => {
             justifyContent: 'space-evenly',
           }}
         >
-          <TextField fullWidth label="Search..." id="searchBar" />
+          <TextField fullWidth label="Search..." id="searchBar"
+                      onChange={(e) => onSearchChange(e.target.value)} />
         </Box>
       );
 }
