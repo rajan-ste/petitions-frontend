@@ -25,27 +25,27 @@ const Petitions = () => {
     const startIndex = (page - 1) * itemsPerPage;
 
     React.useEffect(() => {
-    const getUsers = () => {
-        let url = `http://localhost:4941/api/v1/petitions?startIndex=${startIndex}&count=${itemsPerPage}`;
-        if (searchQuery) {url += `&q=${searchQuery}`}
-        if (catIds.length > 0) {
-            url += catIds.map(id => `&categoryIds=${id}`).join('');
-        }
-        if (maxCost !== "" ) {url += `&supportingCost=${maxCost}`}
-        if (sortOption ) {url += `&q=${sortOption}`}
-        axios.get(url)
-        .then((response) => {
-            setErrorFlag(false);
-            setErrorMessage("");
-            setPetitions(response.data.petitions);
-            setDataCount(response.data.count);
-        }, (error) => {
-            setErrorFlag(true);
-            setErrorMessage(error.toString());
-        });
-    };
-    getUsers();
-    }, [setPetitions, startIndex, searchQuery, catIds, maxCost, sortOption]);
+        const getUsers = () => {
+            let url = `http://localhost:4941/api/v1/petitions?startIndex=${startIndex}&count=${itemsPerPage}`;
+            if (searchQuery) {url += `&q=${searchQuery}`}
+            if (catIds.length > 0) {
+                url += catIds.map(id => `&categoryIds=${id}`).join('');
+            }
+            if (maxCost !== "" && maxCost !== 'None') {url += `&supportingCost=${maxCost}`}
+            if (sortOption ) {url += `&sortBy=${sortOption}`}
+            axios.get(url)
+            .then((response) => {
+                setErrorFlag(false);
+                setErrorMessage("");
+                setPetitions(response.data.petitions);
+                setDataCount(response.data.count);
+            }, (error) => {
+                setErrorFlag(true);
+                setErrorMessage(error.toString());
+            });
+        };
+        getUsers();
+        }, [setPetitions, startIndex, searchQuery, catIds, maxCost, sortOption]);
 
     React.useEffect(() => {
         const getCategories = () => {
@@ -70,24 +70,27 @@ const Petitions = () => {
     const petition_rows = () => petitions.map((petition: PetitionList) => <PetitionListObject key={ petition.petitionId } petition={petition} />)
 
     const generatePriceOptions = () => {
-        let prices = [];
+        const prices = [{ label: 'None', code: '' }]; 
         for (let i = 0; i <= 150; i += 15) {
-            prices.push("$" + i.toString());
+            prices.push({
+                label: `$${i}`, 
+                code: i.toString(), 
+            });
         }
         return prices;
     };
 
-    const sortOptions: string[] = [
-        "Alphabetical A-Z",
-        "Alphabetical Z-A",
-        "Cost Ascending",
-        "Cost Descending",
-        "Creation Date Oldest",
-        "Creation Date Newest"
+    const priceOptions = generatePriceOptions();
+    
+    const sortOptions = [
+        { label: "Alphabetical A-Z", code: "ALPHABETICAL_ASC" },
+        { label: "Alphabetical Z-A", code: "ALPHABETICAL_DESC" },
+        { label: "Cost Ascending", code: "COST_ASC" },
+        { label: "Cost Descending", code: "COST_DESC" },
+        { label: "Creation Date Oldest", code: "CREATED_ASC" },
+        { label: "Creation Date Newest", code: "CREATED_DESC" }
     ];
     
-    const priceOptions = generatePriceOptions();
-
     const handleCategoryChange = (categoryId: number) => {
         setCatIds((prevCatIds) => {
             const index = prevCatIds.indexOf(categoryId);
@@ -111,10 +114,10 @@ const Petitions = () => {
                     <SelectMenu categories={categories} onCategoryChange={handleCategoryChange}/>
                 </div>
                 <div style={{ display: 'flex', marginLeft: '3vh' }}>
-                    <RadioMenu options={priceOptions} title="Max Cost" num={true} onInputChangeStr={setMaxCost} />
+                    <RadioMenu options={priceOptions} title="Max Cost" onInputChangeStr={setMaxCost} />
                 </div>
                 <div style={{ display: 'flex', marginLeft: '3vh' }}>
-                    <RadioMenu options={sortOptions} title="Sort By" num={false} onInputChangeStr={setSortOption} />
+                    <RadioMenu options={sortOptions} title="Sort By" onInputChangeStr={setSortOption} />
                 </div>
                 
             </div>
@@ -130,8 +133,9 @@ const Petitions = () => {
             </Box>
             {petitions.length > 0 ?
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 10}}>
-                <PaginationButs itemsPerPage={itemsPerPage} count={dataCount} page={page}/>
-            </div> : <h2>{"No Petitions Found"}</h2>}
+                    <PaginationButs itemsPerPage={itemsPerPage} count={dataCount} page={page}/>
+                </div> : 
+                <h2>{"No Petitions Found"}</h2>}
             
         </div>
     )

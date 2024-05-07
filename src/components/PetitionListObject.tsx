@@ -36,7 +36,7 @@ const PetitionListObject = (props: IPetitionListProps) => {
     };
 
     return (
-            <Grid item xs={6}>
+            <Grid item xs={12} lg={6}>
                 <Item>
                     <div style={{ float: 'left', padding: 10}}>
                         {imageError ? (

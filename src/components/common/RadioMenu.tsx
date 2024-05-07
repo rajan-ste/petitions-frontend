@@ -2,17 +2,20 @@ import * as React from 'react';
 import { Button, Menu, Radio, RadioGroup, FormControlLabel, FormControl } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
+interface Option {
+    label: string;
+    code: string;
+}
+
 interface IRadioMenuProps {
-    options: string[];
+    options: Option[];
     title: string;
-    num: boolean;
-    onInputChangeNum?: (value: number) => void;
     onInputChangeStr: (value: string) => void;
 }
 
 const RadioMenu = (props: IRadioMenuProps) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const [selectedPrice, setSelectedPrice] = React.useState<string>(props.options[0]);
+    const [selectedVal, setSelectedVal] = React.useState<string>(props.options[0].code);
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -23,8 +26,9 @@ const RadioMenu = (props: IRadioMenuProps) => {
     };
 
     const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectedPrice(event.target.value);
-        props.onInputChangeStr(selectedPrice.replace("$", ""))
+        const newVal = event.target.value;
+        setSelectedVal(newVal);
+        props.onInputChangeStr(newVal)
         handleClose();
     };
 
@@ -66,12 +70,12 @@ const RadioMenu = (props: IRadioMenuProps) => {
                 <FormControl>
                     <RadioGroup
                         aria-labelledby="select-price-button"
-                        value={selectedPrice}
+                        value={selectedVal}
                         name="price-range-group"
                         onChange={handleRadioChange}
                     >
                         {props.options.map((item) => (
-                            <FormControlLabel key={item} value={item} control={<Radio />} label={item} />
+                            <FormControlLabel key={item.code} value={item.code} control={<Radio />} label={item.label} />
                         ))}
                     </RadioGroup>
                 </FormControl>
