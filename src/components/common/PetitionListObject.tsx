@@ -39,7 +39,12 @@ const PetitionListObject = (props: IPetitionListProps) => {
     return (
         <Grid item xs={12} lg={6}>
         <Item>
-            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <Box sx={{ display: 'flex', 
+                       flexDirection: 'row', 
+                       alignItems: 'center', 
+                       justifyContent: 'space-between', 
+                       width: '100%',
+                       minHeight: {lg: '31vh'} }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', width: 'auto' }}>
                     <Box sx={{ float: 'left', padding: 0 }}>
                         {imageError ? (
@@ -57,7 +62,7 @@ const PetitionListObject = (props: IPetitionListProps) => {
                         <h2 style={{ color: 'black' }}>{petition.title}</h2>
                         <h3>Created on: {nztFormatted}</h3>
                         <h3>Category: {petition.category}</h3>
-                        <h3>Supporting Cost: ${petition.supportingCost}</h3>
+                        <h3>Supporting Cost: {petition.supportingCost != null ? `$${petition.supportingCost}` : `No Support Tiers`}</h3>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <h3 style={{ margin: 0, paddingRight: '10px' }}>
                                 {petition.ownerFirstName + " " + petition.ownerLastName}
