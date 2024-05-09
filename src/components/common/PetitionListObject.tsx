@@ -73,7 +73,7 @@ const PetitionListObject = (props: IPetitionListProps) => {
                 </Box>
                 <Box>
                     <Link 
-                        href={`petitions/${petition.petitionId}`} 
+                        href={`/petitions/${petition.petitionId}`} 
                         sx={{ display: 'flex', alignItems: 'center' }}>
                         <ArrowForwardIosIcon fontSize="large" />
                     </Link>
