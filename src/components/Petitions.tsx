@@ -1,7 +1,7 @@
 import React from "react";
 import SearchBar from "./common/SearchBar"
 import axios from "axios";
-import PetitionListObject from "./PetitionListObject";
+import PetitionListObject from "./common/PetitionListObject";
 import SelectMenu from "./common/SelectMenu";
 import RadioMenu from "./common/RadioMenu";
 import PaginationButs from "./common/PaginationButs";
@@ -25,7 +25,7 @@ const Petitions = () => {
     const startIndex = (page - 1) * itemsPerPage;
 
     React.useEffect(() => {
-        const getUsers = () => {
+        const getPetitions = () => {
             let url = `http://localhost:4941/api/v1/petitions?startIndex=${startIndex}&count=${itemsPerPage}`;
             if (searchQuery) {url += `&q=${searchQuery}`}
             if (catIds.length > 0) {
@@ -44,7 +44,7 @@ const Petitions = () => {
                 setErrorMessage(error.toString());
             });
         };
-        getUsers();
+        getPetitions();
         }, [setPetitions, startIndex, searchQuery, catIds, maxCost, sortOption]);
 
     React.useEffect(() => {
@@ -67,6 +67,7 @@ const Petitions = () => {
         const categoryName = category ? category.name : 'null'; 
         petition.category = categoryName;
     })
+    
     const petition_rows = () => petitions.map((petition: PetitionList) => <PetitionListObject key={ petition.petitionId } petition={petition} />)
 
     const generatePriceOptions = () => {
@@ -83,12 +84,13 @@ const Petitions = () => {
     const priceOptions = generatePriceOptions();
     
     const sortOptions = [
+        { label: "Creation Date Oldest", code: "CREATED_ASC" },
+        { label: "Creation Date Newest", code: "CREATED_DESC" },
         { label: "Alphabetical A-Z", code: "ALPHABETICAL_ASC" },
         { label: "Alphabetical Z-A", code: "ALPHABETICAL_DESC" },
         { label: "Cost Ascending", code: "COST_ASC" },
-        { label: "Cost Descending", code: "COST_DESC" },
-        { label: "Creation Date Oldest", code: "CREATED_ASC" },
-        { label: "Creation Date Newest", code: "CREATED_DESC" }
+        { label: "Cost Descending", code: "COST_DESC" }
+        
     ];
     
     const handleCategoryChange = (categoryId: number) => {
