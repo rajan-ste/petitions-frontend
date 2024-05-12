@@ -82,7 +82,7 @@ const Register = () => {
 
         if (file) {
             if (!validFileTypes.includes(file.type)) {
-                errors.filetype = 'Upload PNG, JPG or GIF file';
+                errors.filetype = 'Image must be PNG, JPG or GIF file';
                 isValid = false;
             }
         }
@@ -91,32 +91,66 @@ const Register = () => {
         return isValid
     }
 
-    const handleSubmit = (event: { preventDefault: () => void; }) => {
-        event.preventDefault();
-        if (validate()) {
-            axios.post('http://localhost:4941/api/v1/users/register', {
+    const registerUser = async () => {
+        try {
+            const response = await axios.post('http://localhost:4941/api/v1/users/register', {
                 email: formData.email,
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 password: formData.password
-            })
-            .then((response) => {
-                const id = response.data.userId;
-                setUserId(id)
-                if (file) {
-                    handleUpload(id)
-                }
-            })
-            .catch((error) => {
+            });
+            return response.data.userId; 
+        } catch (error: unknown) { 
+            if (axios.isAxiosError(error)) {
                 if (error.response && error.response.status === 403) {
-                    setFormData(form => ({
+                    throw new Error('Email already in use');
+                }
+            }
+            throw new Error('Registration failed');
+        }
+    }
+
+    const loginUser = async () => {
+        try {
+            const response = await axios.post(`http://localhost:4941/api/v1/users/login`, {
+                email: formData.email,
+                password: formData.password
+            });
+            return response.data.token;
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                throw new Error('Error loggin user in')
+            }
+        }
+    }
+    
+
+    const handleSubmit = async (event: { preventDefault: () => void; }) => {
+        event.preventDefault();
+    
+        if (validate()) {
+            try {
+                const userId = await registerUser();
+                const token = await loginUser();
+                if (file) {
+                    await handleUpload(userId, token);
+                }
+            } catch (error: any) {  
+                if (error instanceof Error) { 
+                    setFormData((form) => ({
                         ...form,
-                        errors: { ...form.errors, email: 'Email already in use' }
+                        errors: { ...form.errors, email: error.message }
+                    }));
+                } else {
+                    setFormData((form) => ({
+                        ...form,
+                        errors: { ...form.errors, email: "An unknown error occurred" }
                     }));
                 }
-            });
+            }
         }
     };
+    
 
     const handleChange = (event: { target: { name: any; value: any; }; }) => {
         const { name, value } = event.target;
@@ -133,20 +167,19 @@ const Register = () => {
         }
     };
 
-      const handleUpload = (userId: number) => {
+      const handleUpload = (userId: number, token: string) => {
         if (file) {
-          axios
-            .put(
+          axios.put(
               `http://localhost:4941/api/v1/users/${userId}/image`,
               file,
               {
                 headers: {
                   "Content-Type": file.type,
+                  "X-Authorization": token
                 },
               }
             )
             .then((response) => {
-              
             })
             .catch((error) => {
               if (error.response && error.response.status === 400) {
