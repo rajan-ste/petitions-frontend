@@ -17,7 +17,7 @@ const Header = () => {
             <Typography variant="h6" component="div" sx={{ p: 2 }} >
               <Link to={"/petitions"} style={{ textDecoration: 'none', color: 'white' }}>Petitions</Link>
             </Typography>
-            <Button sx={{ ml: 'auto' }} color="inherit">Login</Button>
+            <Button component={Link} to="/login" sx={{ ml: 'auto' }} color="inherit">Login</Button>
           </Toolbar>
         </AppBar>
       </Box>

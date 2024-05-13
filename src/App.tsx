@@ -7,6 +7,8 @@ import NotFound from './components/NotFound';
 import Header from './components/common/Header';
 import Petition from './components/Petition';
 import Register from './components/Register';
+import Login from './components/Login';
+import Account from './components/Account';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
             <Route path="/petitions" element={<Petitions/>}/>
             <Route path="/petitions/:id" element={<Petition />}/>
             <Route path="/register" element={<Register />}/>
+            <Route path="/login" element={<Login />}/>
+            <Route path="/account" element={<Account />}/>
             <Route path="*" element={<NotFound/>}/>
           </Routes>
         </div>
