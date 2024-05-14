@@ -119,7 +119,7 @@ const Register = () => {
             return response.data.token;
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                throw new Error('Error loggin user in')
+                throw new Error('Error logging user in')
             }
         }
     }
@@ -135,6 +135,7 @@ const Register = () => {
                 if (file) {
                     await handleUpload(userId, token);
                 }
+                navigate("/account");
             } catch (error: any) {  
                 if (error instanceof Error) { 
                     setFormData((form) => ({
