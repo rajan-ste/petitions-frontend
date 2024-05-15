@@ -1,11 +1,7 @@
-import { Alert } from '@mui/material';
-import CheckIcon from '@mui/icons-material/Check';
 import Box from '@mui/material/Box';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
-    const location = useLocation();
-    const login = location.state?.login;
     return (
         <div>
             <h1>Home</h1>
@@ -16,9 +12,6 @@ const Home = () => {
                                                    here</Link>
                 </Box>
             </div>
-            {login ?    <Alert icon={<CheckIcon fontSize="inherit" />} severity="success">
-                            Login successful.
-                         </Alert> : ""}
         </div>
     )
 }

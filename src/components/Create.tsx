@@ -5,8 +5,7 @@ import { styled } from '@mui/material/styles';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useStore from '../store';
-import RadioMenu from './common/RadioMenu'; // Adjust the import path as necessary
-import { response } from 'express';
+import RadioMenu from './common/RadioMenu'; 
 
 interface Option {
   label: string;
@@ -128,49 +127,58 @@ const Create = () => {
       supportTier3Description: '',
       supportTier3Cost: ''
     };
-
+  
     // Validate main fields
     if (!formData.petitionTitle) {
       errors.petitionTitle = 'Enter a petition title';
       isValid = false;
     }
-
+  
     if (!formData.petitionDescription) {
       errors.petitionDescription = 'Enter a description';
       isValid = false;
     }
-
+  
     if (!formData.categoryId) {
       errors.categoryId = 'Select a category';
       isValid = false;
     }
-
+  
     if (!file || !validFileTypes.includes(file.type)) {
       errors.filetype = 'Upload a PNG, GIF or JPG image';
       isValid = false;
     }
-
+  
     // Validate support tiers
+    const seenTitles = new Set<string>();
     const validateSupportTier = (title: string, description: string, cost: string, tierName: 'supportTier1' | 'supportTier2' | 'supportTier3') => {
       const isAnyFieldFilled = title || description || cost;
       const isComplete = title && description && cost;
-
+  
       if (isAnyFieldFilled && !isComplete) {
         if (!title) errors[`${tierName}Title`] = 'Title is required';
         if (!description) errors[`${tierName}Description`] = 'Description is required';
         if (!cost) errors[`${tierName}Cost`] = 'Cost is required';
         isValid = false;
       }
+  
+      if (title) {
+        if (seenTitles.has(title)) {
+          errors[`${tierName}Title`] = 'Support tier titles must be unique';
+          isValid = false;
+        } else {
+          seenTitles.add(title);
+        }
+      }
     };
-
+  
     validateSupportTier(formData.supportTier1Title, formData.supportTier1Description, formData.supportTier1Cost, 'supportTier1');
     validateSupportTier(formData.supportTier2Title, formData.supportTier2Description, formData.supportTier2Cost, 'supportTier2');
     validateSupportTier(formData.supportTier3Title, formData.supportTier3Description, formData.supportTier3Cost, 'supportTier3');
-
+  
     setFormData(form => ({ ...form, errors }));
     return isValid;
   };
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormData(form => ({ ...form, [name]: value }));

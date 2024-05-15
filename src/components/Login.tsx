@@ -52,7 +52,7 @@ const Login = () => {
                 email: formData.email,
                 password: formData.password
             });
-            return response.data.token;
+            return [response.data.token, response.data.userId];
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 if (error.response && error.response.status === 401) {
@@ -61,19 +61,17 @@ const Login = () => {
                     throw new Error('Login failed')
                 }
             }
+            throw new Error('Error occurred')
         }
     }
     
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
-    
         if (validate()) {
             try {
-                const token = await loginUser();
-                console.log(token)
-                setToken(token);
-                navigate('/', {state: {login: true} })
-
+                const logIn = await loginUser();
+                setToken(logIn[0], logIn[1]);
+                navigate('/account')
             } catch (error: any) {  
                 if (error instanceof Error) { 
                     setFormData((form) => ({

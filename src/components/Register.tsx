@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles'
 import React from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useStore from "../store";
 
 interface FormData {
     firstName: string;
@@ -28,6 +29,7 @@ const VisuallyHiddenInput = styled('input')({
 
 const Register = () => {
     const navigate = useNavigate();
+    const { token, setToken } = useStore();
     const [formData, setFormData] = React.useState({
         firstName: '',
         lastName: '',
@@ -116,11 +118,12 @@ const Register = () => {
                 email: formData.email,
                 password: formData.password
             });
-            return response.data.token;
+            return [response.data.token, response.data.userId];
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 throw new Error('Error logging user in')
             }
+            throw new Error('Error occurred')
         }
     }
     
@@ -131,9 +134,10 @@ const Register = () => {
         if (validate()) {
             try {
                 const userId = await registerUser();
-                const token = await loginUser();
+                const logIn = await loginUser();
+                setToken(logIn[0], logIn[1]);
                 if (file) {
-                    await handleUpload(userId, token);
+                    await handleUpload(userId, logIn[0]);
                 }
                 navigate("/account");
             } catch (error: any) {  
@@ -152,7 +156,6 @@ const Register = () => {
         }
     };
     
-
     const handleChange = (event: { target: { name: any; value: any; }; }) => {
         const { name, value } = event.target;
         setFormData(form => ({ ...form, [name]: value }));

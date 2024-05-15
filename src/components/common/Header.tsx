@@ -5,8 +5,10 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
+import useStore from '../../store';
 
 const Header = () => {
+  const { token } = useStore();
     return (
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
@@ -17,7 +19,7 @@ const Header = () => {
             <Typography variant="h6" component="div" sx={{ p: 2 }} >
               <Link to={"/petitions"} style={{ textDecoration: 'none', color: 'white' }}>Petitions</Link>
             </Typography>
-            <Button component={Link} to="/login" sx={{ ml: 'auto' }} color="inherit">Login</Button>
+            <Button component={Link} to="/login" sx={{ ml: 'auto' }} color="inherit">{token ? "Account" : "Login"}</Button>
           </Toolbar>
         </AppBar>
       </Box>
