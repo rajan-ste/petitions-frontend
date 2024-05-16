@@ -133,13 +133,16 @@ const Petition = () => {
         );
     });
 
+    const togglePlaceholder = () => ""
     // const similarPetitionsSet = new Set(similarPetitions)
     // const similarPetitionsArr = Array.from(similarPetitionsSet).filter((pet) => pet.petitionId !== petition.petitionId)
     const similarPetition_rows = () => similarPetitions.map((petitionObj: PetitionList) => {
                                         return (
                                         <PetitionListObject 
                                             key={ petitionObj.petitionId } 
-                                            petition={petitionObj} />
+                                            petition={petitionObj}
+                                            delToggle={() => togglePlaceholder} />
+                                           
                                             );
                                         });
                                                         

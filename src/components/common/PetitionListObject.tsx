@@ -1,10 +1,16 @@
 import React from "react";
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
-import { Avatar, Box, Grid, Link, Paper, styled } from "@mui/material";
+import { Avatar, Box, Button, Grid, Link, Paper, styled } from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import {Link as RouterLink} from 'react-router-dom';
 
 interface IPetitionListProps {
-    petition: PetitionList
+    petition: PetitionList,
+    delBool?: boolean,
+    editBool?: boolean,
+    delToggle: () => void
 }
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -71,13 +77,25 @@ const PetitionListObject = (props: IPetitionListProps) => {
                         </Box>
                     </Box>
                 </Box>
-                <Box>
+                <Box >
                     <Link 
                         href={`/petitions/${petition.petitionId}`} 
                         sx={{ display: 'flex', alignItems: 'center' }}>
                         <ArrowForwardIosIcon fontSize="large" />
                     </Link>
                 </Box>
+                {props.delBool ?
+                <Box sx={{ alignSelf: 'flex-end' }} onClick={() => props.delToggle()}>
+                    <Button>
+                        <DeleteIcon color="warning" fontSize="large" />
+                    </Button>
+                </Box> : "" }
+                {props.editBool ?
+                <Box sx={{ alignSelf: 'flex-end' }}>
+                        <Button component={RouterLink} to={`/petitions/${petition.petitionId}/edit`}>
+                            <EditIcon fontSize="large" />
+                        </Button>
+                </Box> : "" }
             </Box>
         </Item>
     </Grid>

@@ -68,7 +68,8 @@ const Petitions = () => {
         petition.category = categoryName;
     })
     
-    const petition_rows = () => petitions.map((petition: PetitionList) => <PetitionListObject key={ petition.petitionId } petition={petition} />)
+    const togglePlaceHolder = () => ""; // placeholder for delToggle since it can't be undefined
+    const petition_rows = () => petitions.map((petition: PetitionList) => <PetitionListObject key={ petition.petitionId } petition={petition} delToggle={() => togglePlaceHolder} />)
 
     const generatePriceOptions = () => {
         const prices = [{ label: 'None', code: '' }]; 
@@ -90,7 +91,6 @@ const Petitions = () => {
         { label: "Alphabetical Z-A", code: "ALPHABETICAL_DESC" },
         { label: "Cost Ascending", code: "COST_ASC" },
         { label: "Cost Descending", code: "COST_DESC" }
-        
     ];
     
     const handleCategoryChange = (categoryId: number) => {
