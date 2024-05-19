@@ -11,6 +11,7 @@ import Login from './components/Login';
 import Account from './components/Account';
 import useStore from './store';
 import Create from './components/Create';
+import Edit from './components/Edit';
 
 function App() {
   const { token } = useStore();
@@ -23,6 +24,7 @@ function App() {
             <Route path="/" element={<Home/>}/>
             <Route path="/petitions" element={<Petitions/>}/>
             <Route path="/petitions/:id" element={<Petition />}/>
+            <Route path="/petitions/:id/edit" element={<Edit />}/>
             <Route path="/register" element={token ? <Navigate to="/account" /> : <Register />}/>
             <Route path="/login" element={token ? <Navigate to="/account" /> : <Login />} />
             <Route path="/account" element={token ? <Account /> : <Navigate to="/login" /> }/>

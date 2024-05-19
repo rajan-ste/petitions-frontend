@@ -1,5 +1,7 @@
 import { Box, Button, Grid, Paper, styled } from "@mui/material";
 import React from "react";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 const Item = styled(Paper)(({ theme }) => ({
     backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
@@ -7,15 +9,16 @@ const Item = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(1),
     textAlign: 'center',
     color: theme.palette.text.secondary,
-  }));
+}));
 
 interface ISupportTierProps {
-    tier: SupportTier
+    tier: SupportTier;
+    edit: boolean;
+    onDelete?: () => void;
+    onEdit?: () => void;
 }
 
-const SupportTierObject = ({ tier }: ISupportTierProps) => {
-    const [sTier] = React.useState<SupportTier>(tier);
-
+const SupportTierObject = ({ tier, edit, onDelete, onEdit }: ISupportTierProps) => {
     return (
         <Grid item xs={3}>
             <Item>
@@ -30,35 +33,45 @@ const SupportTierObject = ({ tier }: ISupportTierProps) => {
                     }}
                 >
                     <Box>
-                    <h2 style={{
-                        display: '-webkit-box',
-                        WebkitBoxOrient: 'vertical',
-                        WebkitLineClamp: 2,
-                        overflow: 'hidden',
-                        height: '3em', 
-                        lineHeight: '1.5em', 
-                    }}>{sTier.title}</h2>
+                        {edit &&
+                            <>
+                                <Button sx={{ m: 1 }} onClick={onDelete}>
+                                    <DeleteIcon color="warning" fontSize="large" />
+                                </Button>
+                                <Button sx={{ m: 1 }} onClick={onEdit}>
+                                    <EditIcon fontSize="large" />
+                                </Button>
+                            </>
+                        }
+                        <h2 style={{
+                            display: '-webkit-box',
+                            WebkitBoxOrient: 'vertical',
+                            WebkitLineClamp: 2,
+                            overflow: 'hidden',
+                            height: '3em',
+                            lineHeight: '1.5em',
+                        }}>
+                            {tier.title}
+                        </h2>
                         <p style={{
                             display: '-webkit-box',
                             WebkitBoxOrient: 'vertical',
-                            WebkitLineClamp: 3, // Adjust the number of lines
+                            WebkitLineClamp: 3,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            height: '4.5em',  // Based on line height, adjust accordingly
+                            height: '4.5em',
                         }}>
-                            {sTier.description}
+                            {tier.description}
                         </p>
                     </Box>
                     <Box>
-                        <p>{sTier.cost > 0 ? `$${sTier.cost}` : 'Free'}</p>
+                        <p>{tier.cost > 0 ? `$${tier.cost}` : 'Free'}</p>
                         <Button>View</Button>
                     </Box>
                 </Box>
             </Item>
         </Grid>
     );
-}
-
-
+};
 
 export default SupportTierObject;

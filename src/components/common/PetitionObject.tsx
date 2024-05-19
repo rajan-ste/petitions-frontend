@@ -3,7 +3,7 @@ import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
 import { Avatar, Box } from "@mui/material";
 
 interface IPetitionProps {
-    petition: Petition
+    petition: Petition;
 }
 
 const PetitionObject = ({ petition }: IPetitionProps) => {

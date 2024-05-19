@@ -8,7 +8,6 @@ import SupporterListObject from "./common/SupporterListObject";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PetitionListObject from "./common/PetitionListObject";
 
-
 const Petition = () => {
     const [petition, setPetition] = React.useState<Petition>({
         petitionId: 0, 
@@ -120,7 +119,7 @@ const Petition = () => {
         simPetition.category = categoryName;
     })
 
-    const tier_rows = () => petition.supportTiers.map((tier: SupportTier) => <SupportTierObject key={ tier.supportTierId } tier={tier} />)
+    const tier_rows = () => petition.supportTiers.map((tier: SupportTier) => <SupportTierObject key={ tier.supportTierId } tier={tier} edit={false}/>)
 
     const supporter_rows = () => supporters.map((supporter: SupporterList) => {
         const tierIndex = petition.supportTiers.findIndex(tier => tier.supportTierId === supporter.supportTierId);
@@ -156,7 +155,7 @@ const Petition = () => {
             ) : null}
             {petition.petitionId > 0 && (
                 <>
-                    <PetitionObject petition={petition} />
+                    <PetitionObject petition={petition}/>
                     <Box
                         sx={{
                             flexGrow: 1,
