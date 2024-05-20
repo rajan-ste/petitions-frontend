@@ -16,9 +16,10 @@ interface ISupportTierProps {
     edit: boolean;
     onDelete?: () => void;
     onEdit?: () => void;
+    onView?: () => void; // Add the onView prop
 }
 
-const SupportTierObject = ({ tier, edit, onDelete, onEdit }: ISupportTierProps) => {
+const SupportTierObject = ({ tier, edit, onDelete, onEdit, onView }: ISupportTierProps) => {
     return (
         <Grid item xs={3}>
             <Item>
@@ -66,7 +67,7 @@ const SupportTierObject = ({ tier, edit, onDelete, onEdit }: ISupportTierProps) 
                     </Box>
                     <Box>
                         <p>{tier.cost > 0 ? `$${tier.cost}` : 'Free'}</p>
-                        <Button>View</Button>
+                        <Button onClick={onView}>View</Button>
                     </Box>
                 </Box>
             </Item>

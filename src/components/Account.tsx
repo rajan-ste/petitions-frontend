@@ -1,4 +1,4 @@
-import { Alert, Avatar, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, Snackbar, TextField, Typography } from "@mui/material";
+import { Alert, Avatar, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, IconButton, InputAdornment, Snackbar, TextField, Typography } from "@mui/material";
 import useStore from "../store";
 import { Link as RouterLink } from "react-router-dom";
 import React from "react";
@@ -6,6 +6,7 @@ import axios from "axios";
 import PetitionListObject from "./common/PetitionListObject";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -34,6 +35,7 @@ const Account = () => {
     const { delToken, token, userId } = useStore();
     const [user, setUser] = React.useState<User>({ firstName: '', lastName: '', email: '' });
     const [myPetitions, setMyPetitions] = React.useState<Array<PetitionList>>([]);
+    const [supPetitions, setSupPetitions] = React.useState<Array<PetitionList>>([]);
     const [categories, setCategories] = React.useState<Array<Category>>([]);
     const [errorFlag, setErrorFlag] = React.useState(false);
     const [errorMessage, setErrorMessage] = React.useState("");
@@ -65,6 +67,12 @@ const Account = () => {
     };
     const [dialogMyPet, setDialogMyPet] = React.useState<PetitionList>(defaultPetition);
     const [openSnackBar, setOpenSnackBar] = React.useState(false);
+    const [showPassword, setShowPassword] = React.useState(false);
+    const handleClickShowPassword = () => setShowPassword(!showPassword)
+    const handleMouseDownPassword = () => setShowPassword(!showPassword)
+    const [showNewPassword, setShowNewPassword] = React.useState(false);
+    const handleClickShowNewPassword = () => setShowNewPassword(!showNewPassword)
+    const handleMouseDownNewPassword = () => setShowNewPassword(!showNewPassword)
 
     const handleOpenUserEditDialog = (userData: UserFormData) => {
         setUserFormValues({
@@ -266,6 +274,21 @@ const Account = () => {
     }, [userId])
 
     React.useEffect(() => {
+        const getSupPetitions = () => {
+            axios.get(`http://localhost:4941/api/v1/petitions?supporterId=${userId}`)
+                .then((response) => {
+                    setErrorFlag(false);
+                    setErrorMessage("");
+                    setSupPetitions(response.data.petitions);
+                }, (error) => {
+                    setErrorFlag(true);
+                    setErrorMessage(error.toString());
+                });
+        };
+        getSupPetitions();
+    }, [userId])
+
+    React.useEffect(() => {
         const getCategories = () => {
             axios.get('http://localhost:4941/api/v1/petitions/categories')
                 .then((response) => {
@@ -286,6 +309,12 @@ const Account = () => {
         petition.category = categoryName;
     })
 
+    supPetitions.forEach((petition) => {
+        const category = categories.find(cat => cat.categoryId === petition.categoryId);
+        const categoryName = category ? category.name : 'null';
+        petition.category = categoryName;
+    })
+
     const my_petition_rows = () => {
         return myPetitions.map((petition: PetitionList) => (
             <PetitionListObject
@@ -293,6 +322,18 @@ const Account = () => {
                 petition={petition}
                 delBool={petition.numberOfSupporters === 0}
                 editBool={true}
+                delToggle={() => handleOpenDeleteDialog(petition)}
+            />
+        ));
+    }
+
+    const sup_petition_rows = () => {
+        return supPetitions.map((petition: PetitionList) => (
+            <PetitionListObject
+                key={petition.petitionId}
+                petition={petition}
+                delBool={false}
+                editBool={false}
                 delToggle={() => handleOpenDeleteDialog(petition)}
             />
         ));
@@ -347,6 +388,16 @@ const Account = () => {
             <Box sx={{ flexGrow: 1, ml: 5, mr: 5 }}>
                 <Grid container spacing={2}>
                     {myPetitions.length > 0 ? my_petition_rows() : "You have no petitions"}
+                </Grid>
+            </Box>
+            <Box display="flex" alignItems="center" mb={2} sx={{ mt: 5 }}>
+                <Typography variant="h6" component="div" sx={{ mr: 2, ml: 5 }}>
+                    Supported Petitions
+                </Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1, ml: 5, mr: 5 }}>
+                <Grid container spacing={2}>
+                    {supPetitions.length > 0 ? sup_petition_rows() : "You are not supporting any petitions"}
                 </Grid>
             </Box>
             <Dialog
@@ -458,18 +509,44 @@ const Account = () => {
                             <TextField
                                 name="currentPassword"
                                 label="Current Password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 value={passwordFormValues.currentPassword}
                                 onChange={handlePasswordEditInputChange}
                                 fullWidth
+                                InputProps={{ 
+                                    endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={handleClickShowPassword}
+                                        onMouseDown={handleMouseDownPassword}
+                                        >
+                                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                    )
+                                }} 
                             />
                             <TextField
                                 name="password"
                                 label="New Password"
-                                type="password"
+                                type={showNewPassword ? "text" : "password"}
                                 value={passwordFormValues.password}
                                 onChange={handlePasswordEditInputChange}
                                 fullWidth
+                                InputProps={{ 
+                                    endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={handleClickShowNewPassword}
+                                        onMouseDown={handleMouseDownNewPassword}
+                                        >
+                                        {showNewPassword ? <Visibility /> : <VisibilityOff />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                    )
+                                }} 
                             />
                             <Box sx={{
                                 display: 'flex',

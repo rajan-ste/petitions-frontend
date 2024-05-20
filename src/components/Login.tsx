@@ -55,8 +55,8 @@ const Login = () => {
             return [response.data.token, response.data.userId];
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                if (error.response && error.response.status === 401) {
-                    throw new Error('Invalid email or password') 
+                if (error.response) {
+                    throw new Error(error.response.statusText) 
                 } else {
                     throw new Error('Login failed')
                 }

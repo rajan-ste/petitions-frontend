@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Accordion, AccordionDetails, AccordionSummary, Alert, AlertTitle, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, InputAdornment, List, TextField } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, InputAdornment, Snackbar, TextField } from "@mui/material";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import PetitionObject from "./common/PetitionObject";
@@ -20,7 +20,7 @@ const VisuallyHiddenInput = styled('input')({
     left: 0,
     whiteSpace: 'nowrap',
     width: 1,
-  }); 
+});
 
 const Edit = () => {
     const [petition, setPetition] = useState<Petition>({
@@ -48,6 +48,7 @@ const Edit = () => {
     const [tierToEdit, setTierToEdit] = useState<SupportTier | null>(null);
     const [tierToDelete, setTierToDelete] = useState<SupportTier | null>(null);
     const [file, setFile] = useState<File | null>(null);
+    const [openSnackBar, setOpenSnackBar] = useState(false);
 
     const { id } = useParams();
     const { token } = useStore();
@@ -93,6 +94,7 @@ const Edit = () => {
                     supportTiers: prevPetition.supportTiers.filter(t => t.supportTierId !== tierToDelete.supportTierId)
                 }));
                 handleCloseDeleteDialog();
+                setOpenSnackBar(true);
             })
             .catch((error) => {
                 setErrorFlag(true);
@@ -137,6 +139,7 @@ const Edit = () => {
                     )
                 }));
                 handleCloseEditTierDialog();
+                setOpenSnackBar(true);
             })
             .catch((error) => {
                 setErrorFlag(true);
@@ -232,11 +235,12 @@ const Edit = () => {
                     categoryId: formValues.categoryId
                 });
                 handleCloseEditDialog();
+                setOpenSnackBar(true);
             })
             .catch((error) => {
-                if (error.response && error.response.status === 403) {
+                if (error.response) {
                     setErrorFlag(true);
-                    setErrorMessage("Petition title already exists");
+                    setErrorMessage(error.response.statusText);
                 } else {
                     setErrorFlag(true);
                     setErrorMessage(error.response.statusText);
@@ -307,11 +311,20 @@ const Edit = () => {
         getCategories();
     }, []);
 
+    const handleSnackBarClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenSnackBar(false);
+    };
+
     const tier_rows = () => petition.supportTiers.map((tier: SupportTier) => {
         return (
             <SupportTierObject key={tier.supportTierId} tier={tier} edit={true} onDelete={() => handleOpenDeleteDialog(tier)} onEdit={() => handleOpenEditTierDialog(tier)} />
         )
     });
+
+    const currentCategory = categories.find(cat => cat.categoryId === petition.categoryId)?.categoryId.toString() || "0";
 
     return (
         <>
@@ -403,6 +416,7 @@ const Edit = () => {
                                             }))}
                                             title="Change Category"
                                             onInputChangeStr={(value: string) => setFormValues({ ...formValues, categoryId: Number(value) })}
+                                            currentCategory={currentCategory} 
                                         />
                                     </Box>
                                     {errorFlag ? <Alert severity="error">{errorMessage}</Alert> : ""}
@@ -486,7 +500,7 @@ const Edit = () => {
                                         fullWidth
                                         InputProps={{
                                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                          }}
+                                        }}
                                     />
                                     {errorFlag ? <Alert severity="error">{errorMessage}</Alert> : ""}
                                 </Box>
@@ -547,7 +561,7 @@ const Edit = () => {
                                         fullWidth
                                         InputProps={{
                                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                                          }}
+                                        }}
                                     />
                                     {errorFlag ? <Alert severity="error">{errorMessage}</Alert> : ""}
                                 </Box>
@@ -604,6 +618,20 @@ const Edit = () => {
                             </Button>
                         </DialogActions>
                     </Dialog>
+                    <Snackbar
+                        open={openSnackBar}
+                        autoHideDuration={5000}
+                        onClose={handleSnackBarClose}
+                    >
+                        <Alert
+                            onClose={handleSnackBarClose}
+                            severity="success"
+                            variant="filled"
+                            sx={{ width: '100%' }}
+                        >
+                            Edit action completed successfully
+                        </Alert>
+                    </Snackbar>
                 </>
             )}
         </>

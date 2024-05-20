@@ -1,15 +1,16 @@
-import { Accordion, AccordionDetails, AccordionSummary, Alert, AlertTitle, Box, Grid, List } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Alert, AlertTitle, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, List, Snackbar, TextField, Typography } from "@mui/material";
 import axios from "axios";
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import PetitionObject from "./common/PetitionObject";
 import SupportTierObject from "./common/SupportTierObject";
 import SupporterListObject from "./common/SupporterListObject";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PetitionListObject from "./common/PetitionListObject";
+import useStore from "../store";
 
 const Petition = () => {
-    const [petition, setPetition] = React.useState<Petition>({
+    const [petition, setPetition] = useState<Petition>({
         petitionId: 0, 
         title: "",
         creationDate: "",
@@ -22,12 +23,83 @@ const Petition = () => {
         categoryId: 0,
         supportTiers: [] 
     });
-    const [supporters, setSupporters] = React.useState<Array<SupporterList>>([])
-    const [similarPetitions, setSimilarPetitions] = React.useState<Array<PetitionList>>([]);
-    const [categories, setCategories] = React.useState<Array<Category>>([]);
-    const [errorFlag, setErrorFlag] = React.useState(false);
-    const [errorMessage, setErrorMessage] = React.useState("");
-    const { id } = useParams(); 
+    const [supporters, setSupporters] = useState<Array<SupporterList>>([])
+    const [similarPetitions, setSimilarPetitions] = useState<Array<PetitionList>>([]);
+    const [categories, setCategories] = useState<Array<Category>>([]);
+    const [errorFlag, setErrorFlag] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [openSupportDialog, setOpenSupportDialog] = useState(false);
+    const [selectedTier, setSelectedTier] = useState<SupportTier | null>(null);
+    const [supportMessage, setSupportMessage] = useState<string>("");
+    const [openSnackBar, setOpenSnackBar] = useState(false);
+    const { id } = useParams();
+    const { token } = useStore();
+
+    const handleOpenSupportDialog = (tier: SupportTier) => {
+        setSelectedTier(tier);
+        setOpenSupportDialog(true);
+    };
+
+    const handleCloseSupportDialog = () => {
+        setOpenSupportDialog(false);
+        setSelectedTier(null);
+        setSupportMessage("");
+        setErrorFlag(false);
+        setErrorMessage("");
+    };
+
+    const handleSupportMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSupportMessage(event.target.value);
+    };
+
+    const handleSupportSubmit = () => {
+        if (!selectedTier) return;
+        if (supportMessage) {
+            axios.post(`http://localhost:4941/api/v1/petitions/${id}/supporters`, {
+                supportTierId: selectedTier.supportTierId,
+                message: supportMessage
+            }, {
+                headers: {
+                    'X-Authorization': token
+                }
+            })
+            .then((response) => {
+                setOpenSnackBar(true);
+                handleCloseSupportDialog();
+                window.location.reload();
+            })
+            .catch((error) => {
+                setErrorFlag(true);
+                setErrorMessage(error.response.statusText);
+            });
+        }
+        else {
+            axios.post(`http://localhost:4941/api/v1/petitions/${id}/supporters`, {
+                supportTierId: selectedTier.supportTierId,
+            }, {
+                headers: {
+                    'X-Authorization': token
+                }
+            })
+            .then((response) => {
+                setOpenSnackBar(true);
+                handleCloseSupportDialog();
+                window.location.reload();
+            })
+            .catch((error) => {
+                if (error.response.status === 401) {
+                    setErrorFlag(true);
+                    setErrorMessage("Please Login or Signup to support a petition");
+                }
+                else {
+                    setErrorFlag(true);
+                    setErrorMessage(error.response.statusText);
+                }
+               
+            });
+        }
+
+    };
 
     React.useEffect(() => {
         const getPetition = () => {
@@ -72,14 +144,13 @@ const Petition = () => {
                     ...ownerResponse.data.petitions
                 ];
     
-                // Create a set to filter out duplicate petitions by ID
                 const uniquePetitions = new Set();
                 const filteredPetitions: PetitionList[] = [];
     
                 allPetitions.forEach(petition => {
                     if (!uniquePetitions.has(petition.petitionId)) {
                         uniquePetitions.add(petition.petitionId);
-                        if (petition.petitionId !== parseInt(id as string, 10)) { // Ensure current petition is not included
+                        if (petition.petitionId !== parseInt(id as string, 10)) {
                             filteredPetitions.push(petition);
                         }
                     }
@@ -95,8 +166,7 @@ const Petition = () => {
         };
     
         fetchSimilarPetitions();
-    }, [petition, id]); // Depends on both `petition` and `id` to avoid adding the current petition
-    
+    }, [petition, id]);
 
     React.useEffect(() => {
         const getCategories = () => {
@@ -110,7 +180,7 @@ const Petition = () => {
                 setErrorMessage(error.toString());
             });
         };
-    getCategories();
+        getCategories();
     }, [setCategories]);
 
     similarPetitions.forEach((simPetition) => {
@@ -119,7 +189,9 @@ const Petition = () => {
         simPetition.category = categoryName;
     })
 
-    const tier_rows = () => petition.supportTiers.map((tier: SupportTier) => <SupportTierObject key={ tier.supportTierId } tier={tier} edit={false}/>)
+    const tier_rows = () => petition.supportTiers.map((tier: SupportTier) => (
+        <SupportTierObject key={tier.supportTierId} tier={tier} edit={false} onView={() => handleOpenSupportDialog(tier)} />
+    ));
 
     const supporter_rows = () => supporters.map((supporter: SupporterList) => {
         const tierIndex = petition.supportTiers.findIndex(tier => tier.supportTierId === supporter.supportTierId);
@@ -133,18 +205,21 @@ const Petition = () => {
     });
 
     const togglePlaceholder = () => ""
-    // const similarPetitionsSet = new Set(similarPetitions)
-    // const similarPetitionsArr = Array.from(similarPetitionsSet).filter((pet) => pet.petitionId !== petition.petitionId)
-    const similarPetition_rows = () => similarPetitions.map((petitionObj: PetitionList) => {
-                                        return (
-                                        <PetitionListObject 
-                                            key={ petitionObj.petitionId } 
-                                            petition={petitionObj}
-                                            delToggle={() => togglePlaceholder} />
-                                           
-                                            );
-                                        });
-                                                        
+    const similarPetition_rows = () => similarPetitions.map((petitionObj: PetitionList) => (
+        <PetitionListObject 
+            key={petitionObj.petitionId} 
+            petition={petitionObj}
+            delToggle={() => togglePlaceholder} 
+        />
+    ));
+
+    const handleSnackBarClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenSnackBar(false);
+    };
+
     return (
         <>
             {errorFlag ? (
@@ -200,11 +275,61 @@ const Petition = () => {
                             { similarPetition_rows() }
                         </Grid>
                     </Box>
+                    <Dialog
+                        open={openSupportDialog}
+                        onClose={handleCloseSupportDialog}
+                        aria-labelledby="support-dialog-title"
+                        aria-describedby="support-dialog-description"
+                    >
+                        <DialogTitle id="support-dialog-title">
+                            {"Support Petition"}
+                        </DialogTitle>
+                        <DialogContent>
+                            <DialogContentText id="support-dialog-description">
+                                {selectedTier && (
+                                    <>
+                                        <Typography variant="h6" sx={{ m: 1}}>{selectedTier.title}</Typography>
+                                        <Typography variant="body1" sx={{ m: 1}}>{selectedTier.description}</Typography>
+                                        <Typography variant="body1" sx={{ m: 1 }}>{selectedTier.cost > 0 ? `$${selectedTier.cost}` : 'Free'}</Typography>
+                                        <TextField
+                                            label="Message"
+                                            multiline
+                                            rows={4}
+                                            value={supportMessage}
+                                            onChange={handleSupportMessageChange}
+                                            fullWidth
+                                            margin="normal"
+                                        />
+                                    </>
+                                )}
+                                 {errorFlag ? <Alert severity="error">{errorMessage}</Alert> : ""}
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleCloseSupportDialog}>Cancel</Button>
+                            <Button variant="outlined" color="primary" onClick={handleSupportSubmit}>
+                                Support
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                    <Snackbar
+                        open={openSnackBar}
+                        autoHideDuration={5000}
+                        onClose={handleSnackBarClose}
+                    >
+                        <Alert
+                            onClose={handleSnackBarClose}
+                            severity="success"
+                            variant="filled"
+                            sx={{ width: '100%' }}
+                        >
+                            Support action completed successfully
+                        </Alert>
+                    </Snackbar>
                 </>
             )}
         </>
-    )
-    
+    );
 }
 
 export default Petition;

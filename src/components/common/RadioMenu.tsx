@@ -11,11 +11,13 @@ interface IRadioMenuProps {
     options: Option[];
     title: string;
     onInputChangeStr: (value: string) => void;
+    currentCategory?: string;  // Add currentCategory prop
 }
 
 const RadioMenu = (props: IRadioMenuProps) => {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const [selectedVal, setSelectedVal] = React.useState<string>(props.options[0].code);
+    const initialVal = props.currentCategory ? props.currentCategory : ""
+    const [selectedVal, setSelectedVal] = React.useState<string>(initialVal); // Use currentCategory as the initial value
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
