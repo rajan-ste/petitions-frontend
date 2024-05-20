@@ -52,28 +52,12 @@ const Edit = () => {
     const { id } = useParams();
     const { token } = useStore();
 
-    const defaultPetition: Petition = {
-        petitionId: 0,
-        title: "",
-        creationDate: "",
-        description: "",
-        ownerFirstName: "",
-        ownerLastName: "",
-        numberOfSupporters: 0,
-        moneyRaised: 0,
-        ownerId: 0,
-        categoryId: 0,
-        supportTiers: []
-    };
-    const [dialogMyPet, setDialogMyPet] = useState<Petition>(defaultPetition);
-
     const handleOpenEditDialog = (petition: Petition) => {
         setFormValues({
             title: petition.title,
             description: petition.description,
             categoryId: petition.categoryId
         });
-        setDialogMyPet(petition);
         setOpenEditDialog(true);
     };
 
@@ -333,16 +317,17 @@ const Edit = () => {
         <>
             {petition.petitionId > 0 && (
                 <>
-                    <Button onClick={() => handleOpenEditDialog(petition)}
-                        variant="contained"
-                        color="primary"
-                        sx={{ mt: 5, mr: 3 }}>Edit Details
-                    </Button>
                     <Button onClick={handleOpenEditImageDialog}
                         variant="contained"
                         color="primary"
-                        sx={{ mt: 5 }}>Change Image
+                        sx={{ mt: 5, mr: 3 }}>Change Image
                     </Button>
+                    <Button onClick={() => handleOpenEditDialog(petition)}
+                        variant="contained"
+                        color="primary"
+                        sx={{ mt: 5 }}>Edit Details
+                    </Button>
+       
                     <PetitionObject petition={petition} />
                     
                     <Box
