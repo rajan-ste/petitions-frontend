@@ -1,5 +1,5 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { Box, Button, IconButton, InputAdornment, TextField } from "@mui/material";
+import { Alert, AlertTitle, Box, Button, IconButton, InputAdornment, TextField } from "@mui/material";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles'
 import React from "react";
@@ -51,6 +51,13 @@ const Register = () => {
     const handleMouseDownPassword = () => setShowPassword(!showPassword)
     const [userId, setUserId] = React.useState(0);
     const validFileTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+    const [imageUploaded, setImageUploaded] = React.useState(false);
+
+    React.useEffect(() => {
+        if (imageUploaded) {
+          navigate("/account");
+        }
+      }, [imageUploaded, navigate]);
 
     const validate = () => {
         let isValid = true;
@@ -102,13 +109,8 @@ const Register = () => {
                 password: formData.password
             });
             return response.data.userId; 
-        } catch (error: unknown) { 
-            if (axios.isAxiosError(error)) {
-                if (error.response && error.response.status === 403) {
-                    throw new Error('Email already in use');
-                }
-            }
-            throw new Error('Registration failed');
+        } catch (error: any) { 
+            throw new Error(error.response.statusText);
         }
     }
 
@@ -119,18 +121,16 @@ const Register = () => {
                 password: formData.password
             });
             return [response.data.token, response.data.userId];
-        } catch (error: unknown) {
+        } catch (error: any) {
             if (axios.isAxiosError(error)) {
-                throw new Error('Error logging user in')
+                throw new Error(error.response?.statusText);
             }
-            throw new Error('Error occurred')
+            throw new Error(error.response.statusText);
         }
     }
-    
 
     const handleSubmit = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
-    
         if (validate()) {
             try {
                 const userId = await registerUser();
@@ -138,8 +138,9 @@ const Register = () => {
                 setToken(logIn[0], logIn[1]);
                 if (file) {
                     await handleUpload(userId, logIn[0]);
-                }
-                navigate("/account");
+                } else {
+                    navigate("/account")
+                } 
             } catch (error: any) {  
                 if (error instanceof Error) { 
                     setFormData((form) => ({
@@ -184,13 +185,10 @@ const Register = () => {
               }
             )
             .then((response) => {
+                setImageUploaded(true);
             })
-            .catch((error) => {
-              if (error.response && error.response.status === 400) {
-                setError("Invalid file type. Please try again.");
-              } else {
-                setError("Error occured uploading profile image")
-              }
+            .catch((error: any) => {
+              setError(error.reponse.statusText)
             });
         }
       };
@@ -296,6 +294,12 @@ const Register = () => {
                         Register
                     </Button>
                 </div>
+                {error ? (
+                <Alert severity="error">
+                    <AlertTitle>Error</AlertTitle>
+                    {error}
+                </Alert>
+            ) : null}
             </div>
         </Box >
     )

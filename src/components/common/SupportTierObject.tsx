@@ -67,7 +67,7 @@ const SupportTierObject = ({ tier, edit, onDelete, onEdit, onView }: ISupportTie
                     </Box>
                     <Box>
                         <p>{tier.cost > 0 ? `$${tier.cost}` : 'Free'}</p>
-                        <Button onClick={onView}>View</Button>
+                        {edit ? "" : <Button onClick={onView}>View</Button>}
                     </Box>
                 </Box>
             </Item>

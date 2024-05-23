@@ -381,7 +381,7 @@ const Account = () => {
                 <Typography variant="h6" component="div" sx={{ mr: 2, ml: 5 }}>
                     My Petitions
                 </Typography>
-                <Button component={RouterLink} to="/account/create" variant="contained" color="primary">
+                <Button component={RouterLink} to="/petitions/create" variant="contained" color="primary">
                     Create
                 </Button>
             </Box>

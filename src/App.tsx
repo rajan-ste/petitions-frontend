@@ -28,7 +28,7 @@ function App() {
             <Route path="/register" element={token ? <Navigate to="/account" /> : <Register />}/>
             <Route path="/login" element={token ? <Navigate to="/account" /> : <Login />} />
             <Route path="/account" element={token ? <Account /> : <Navigate to="/login" /> }/>
-            <Route path="/account/create" element={token ? <Create /> : <Navigate to="/login" /> }/>
+            <Route path="/petitions/create" element={token ? <Create /> : <Navigate to="/login" /> }/>
             <Route path="*" element={<NotFound/>}/>
           </Routes>
         </div>

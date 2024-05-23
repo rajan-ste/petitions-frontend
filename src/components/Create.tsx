@@ -58,6 +58,7 @@ const VisuallyHiddenInput = styled('input')({
 const Create = () => {
   const { token } = useStore();
   const navigate = useNavigate();
+  const [imageUploaded, setImageUploaded] = React.useState(false);
   const [formData, setFormData] = useState<FormData>({
     petitionTitle: '',
     petitionDescription: '',
@@ -65,13 +66,13 @@ const Create = () => {
     filetype: '',
     supportTier1Title: '',
     supportTier1Description: '',
-    supportTier1Cost: '',
+    supportTier1Cost: '0',
     supportTier2Title: '',
     supportTier2Description: '',
-    supportTier2Cost: '',
+    supportTier2Cost: '0',
     supportTier3Title: '',
     supportTier3Description: '',
-    supportTier3Cost: '',
+    supportTier3Cost: '0',
     errors: {
       petitionTitle: '',
       petitionDescription: '',
@@ -94,6 +95,12 @@ const Create = () => {
   const [categories, setCategories] = useState<Option[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const validFileTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+
+  useEffect(() => {
+    if (imageUploaded) {
+      navigate("/account");
+    }
+  }, [imageUploaded, navigate]);
 
   useEffect(() => {
     const getCategories = () => {
@@ -152,8 +159,8 @@ const Create = () => {
     // Validate support tiers
     const seenTitles = new Set<string>();
     const validateSupportTier = (title: string, description: string, cost: string, tierName: 'supportTier1' | 'supportTier2' | 'supportTier3') => {
-      const isAnyFieldFilled = title || description || cost;
-      const isComplete = title && description && cost;
+      const isAnyFieldFilled = title || description;
+      const isComplete = title && description && parseInt(cost, 10) >= 0;
   
       if (isAnyFieldFilled && !isComplete) {
         if (!title) errors[`${tierName}Title`] = 'Title is required';
@@ -215,7 +222,7 @@ const Create = () => {
             description: formData.supportTier3Description,
             cost: parseInt(formData.supportTier3Cost)
           }
-        ].filter(tier => tier.title && tier.description && tier.cost);
+        ].filter(tier => tier.title && tier.description && tier.cost !== undefined && tier.cost !== null);
 
         if (supportTiers.length === 0) {
           setFormData(form => ({
@@ -243,7 +250,7 @@ const Create = () => {
         if (file) {
           await handleUpload(response.data.petitionId, token);
         }
-        navigate("/account");
+        // navigate("/account");
       } catch (error: any) {
         if (axios.isAxiosError(error) && error.response) {
           if (error.response.status === 403) {
@@ -276,6 +283,7 @@ const Create = () => {
         }
       )
         .then((response) => {
+          setImageUploaded(true);
         })
         .catch((error) => {
           if (error.response && error.response.status === 400) {
@@ -290,6 +298,9 @@ const Create = () => {
   const handleCategoryChange = (value: string) => {
     setFormData(form => ({ ...form, categoryId: value }));
   };
+
+  const isTier1Filled = formData.supportTier1Title && formData.supportTier1Description && formData.supportTier1Cost;
+  const isTier2Filled = formData.supportTier2Title && formData.supportTier2Description && formData.supportTier2Cost;
 
   return (
     <Box
@@ -396,6 +407,7 @@ const Create = () => {
             helperText={formData.errors.supportTier1Cost}
             fullWidth
             InputProps={{
+              inputProps : {min: 0},
               startAdornment: <InputAdornment position="start">$</InputAdornment>,
             }}
           />
@@ -411,6 +423,7 @@ const Create = () => {
             error={!!formData.errors.supportTier2Title}
             helperText={formData.errors.supportTier2Title}
             fullWidth
+            disabled={!isTier1Filled}
           />
           <TextField
             name="supportTier2Description"
@@ -423,6 +436,7 @@ const Create = () => {
             error={!!formData.errors.supportTier2Description}
             helperText={formData.errors.supportTier2Description}
             fullWidth
+            disabled={!isTier1Filled}
           />
           <TextField
             name="supportTier2Cost"
@@ -434,6 +448,7 @@ const Create = () => {
             error={!!formData.errors.supportTier2Cost}
             helperText={formData.errors.supportTier2Cost}
             fullWidth
+            disabled={!isTier1Filled}
             InputProps={{
               startAdornment: <InputAdornment position="start">$</InputAdornment>,
             }}
@@ -450,6 +465,7 @@ const Create = () => {
             error={!!formData.errors.supportTier3Title}
             helperText={formData.errors.supportTier3Title}
             fullWidth
+            disabled={!isTier2Filled}
           />
           <TextField
             name="supportTier3Description"
@@ -462,6 +478,7 @@ const Create = () => {
             error={!!formData.errors.supportTier3Description}
             helperText={formData.errors.supportTier3Description}
             fullWidth
+            disabled={!isTier2Filled}
           />
           <TextField
             name="supportTier3Cost"
@@ -473,6 +490,7 @@ const Create = () => {
             error={!!formData.errors.supportTier3Cost}
             helperText={formData.errors.supportTier3Cost}
             fullWidth
+            disabled={!isTier2Filled}
             InputProps={{
               startAdornment: <InputAdornment position="start">$</InputAdornment>,
             }}

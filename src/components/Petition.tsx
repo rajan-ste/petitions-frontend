@@ -1,7 +1,7 @@
 import { Accordion, AccordionDetails, AccordionSummary, Alert, AlertTitle, Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, List, Snackbar, TextField, Typography } from "@mui/material";
 import axios from "axios";
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PetitionObject from "./common/PetitionObject";
 import SupportTierObject from "./common/SupportTierObject";
 import SupporterListObject from "./common/SupporterListObject";
@@ -67,10 +67,17 @@ const Petition = () => {
                 setOpenSnackBar(true);
                 handleCloseSupportDialog();
                 window.location.reload();
+
             })
             .catch((error) => {
-                setErrorFlag(true);
-                setErrorMessage(error.response.statusText);
+                if (error.response.status === 401) {
+                    setErrorFlag(true);
+                    setErrorMessage("Please Login or Signup to support a petition");
+                }
+                else {
+                    setErrorFlag(true);
+                    setErrorMessage(error.response.statusText);
+                }
             });
         }
         else {
@@ -271,8 +278,9 @@ const Petition = () => {
                         <div style={{ padding: '20px' }}>
                             <h2>Similar Petitions</h2>
                         </div>
-                        <Grid container spacing={6} sx={{ padding: '10px' }}>
-                            { similarPetition_rows() }
+                        <Grid container spacing={6} sx={{ padding: '10px', justifyContent: 'center', alignItems: 'center' }}>
+                            { similarPetitions.length > 0 ? similarPetition_rows() : 
+                            <p style={{ textAlign: 'center' }}>No similar petitions found</p> }
                         </Grid>
                     </Box>
                     <Dialog
